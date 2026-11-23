@@ -1,0 +1,20 @@
+name: scratch-test
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with: { components: "clippy, rustfmt" }
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all -- --check
+        working-directory: backend
+      - run: cargo check -p api -p db --all-targets
+        working-directory: backend
+      - run: cargo clippy -p api -p db --all-targets -- -D warnings
+        working-directory: backend
+      - run: cargo test -p db --lib tracing_spans
+        working-directory: backend
+      - run: cargo test -p api --lib telemetry
+        working-directory: backend
